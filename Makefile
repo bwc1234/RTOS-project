@@ -1,10 +1,10 @@
-ARCH = armv7-armv
+ARCH = armv7-a
 MCPU = cortex-a8
 
 CC = arm-none-eabi-gcc
 AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
-OC = arm-none-eabi-odjcopy
+OC = arm-none-eabi-objcopy
 
 LINKER_SCRIPT = ./navilos.ld
 
@@ -19,10 +19,21 @@ navilos_bin = build/navilos.bin
 all: $(navilos)
 
 clean:
-	@rm -fr build
+	@rm -rf build
 
 run: $(navilos)
 	qemu-system-arm -M realview-pb-a8 -kernel $(navilos)
 
 debug: $(navilos)
 	qemu-system-arm -M realview-pb-a8 -kernel $(navilos) -S -gdb tcp::1234,ipv4
+
+gdb:
+	gdb-multiarch
+
+$(navilos): $(ASM_OBJS) $(LINKER_SCRIPT)
+	$(LD) -n -T $(LINKER_SCRIPT) -o $(navilos) $(ASM_OBJS)
+	$(OC) -O binary $(navilos) $(navilos_bin)
+
+build/%.o: boot/%.S
+	mkdir -p $(shell dirname $@)
+	$(AS) -march=$(ARCH) -mcpu=$(MCPU) -g -o $@ $<
