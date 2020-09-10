@@ -11,6 +11,13 @@ void Hal_uart_init(void)
     Uart->uartcr.bits.TXE = 1;
     Uart->uartcr.bits.RXE = 1;
     Uart->uartcr.bits.UARTEN = 1;
+
+    //Enable input interrupt
+    Uart->uartimsc.bits.RXIM = 1;
+
+    //Register UART interrupt handler
+    Hal_interrupt_enable(UART_INTERRUPT0);
+    Hal_interrupt_register_handler(interrupt_handler, UART_INTERRUPT0);
 }
 
 void Hal_uart_put_char(uint8_t ch)

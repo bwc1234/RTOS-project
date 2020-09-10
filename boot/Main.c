@@ -1,9 +1,11 @@
 #include "stdint.h"
 #include "HalUart.h"
 #include "stdio.h"
+#include "HalInterrupt.h"
 
 static void Hw_init(void);
 static void Printf_test(Void);
+static void interrupt_handler(void);
 
 void main(void){
 	Hw_init();
@@ -22,7 +24,9 @@ void main(void){
 	while(true);
 }
 
-static void Hw_init(void){
+static void Hw_init(void)
+{
+	Hal_interrupt_init();
 	Hal_uart_init();
 }
 
@@ -38,4 +42,10 @@ static void Printf_test(void)
 	debug_printf("%u = 5\n", i);
 	debug_printf("dec = %u hex = %x\n", 0xff, 0xff);
 	debug_printf("print zero %u\n", 0);
+}
+
+static void interrupt_handler(void)
+{
+	uint8_t ch = Hal_uart_get_char();
+	Hal_uart_put_char(ch);
 }
