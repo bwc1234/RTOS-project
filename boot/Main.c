@@ -109,12 +109,16 @@ void User_task0(void)
 
     while(true)
     {
-        KernelEventFlag_t handle_event = Kernel_wait_events(KernelEventFlag_UartIn);
+        KernelEventFlag_t handle_event = Kernel_wait_events(KernelEventFlag_UartIn|KernelEventFlag_CmdOut);
         switch(handle_event)
         {
         case KernelEventFlag_UartIn:
-            debug_printf("\nEvent handled\n");
+            debug_printf("\nEvent handled by Task0\n");
+	    Kernel_send_events(KernelEventFlag_CmdIn);
             break;
+	case KernelEventFlag_CmdOut:
+	    debug_printf("\nCmdOut Event by Task0\n");
+	    break;
         }
         Kernel_yield();
     }
@@ -129,8 +133,16 @@ void User_task1(void)
     while(true)
     {
 
-        Kernel_yield();
+        KernelEventFlag_t handle_event = Kernel_wait_events(KernelEventFlag_CmdIn);
+    	switch(handle_event)
+    	{
+    	case KernelEventFlag_CmdIn:
+    		debug_printf("\nEvent handled by Task1\n");
+	    	break;
+    	}
+    	Kernel_yield();
     }
+    
 }
 
 void User_task2(void)
